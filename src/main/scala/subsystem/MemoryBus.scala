@@ -25,14 +25,13 @@ case class BankedL2Params(
   coherenceManager: BaseSubsystem => (TLInwardNode, TLOutwardNode, () => Option[Bool]) = { subsystem =>
     implicit val p = subsystem.p
     val BroadcastParams(nTrackers, bufferless) = p(BroadcastKey)
-    val bh = LazyModule(new TLBroadcast(subsystem.memBusBlockBytes, nTrackers, bufferless))
+    val bh = LazyModule(new TLBroadcast(subsystem.mbus.blockBytes, nTrackers, bufferless))
     val ww = LazyModule(new TLWidthWidget(subsystem.sbus.beatBytes))
     ww.node :*= bh.node
     (bh.node, ww.node, () => None)
   }) {
+  require (isPow2(nBanks) || nBanks == 0)
 }
-
-case object BankedL2Key extends Field(BankedL2Params())
 
 /** Parameterization of the memory-side bus created for each memory channel */
 case class MemoryBusParams(
@@ -40,8 +39,6 @@ case class MemoryBusParams(
   blockBytes: Int,
   zeroDevice: Option[AddressSet] = None,
   errorDevice: Option[DevNullParams] = None) extends HasTLBusParams
-
-case object MemoryBusKey extends Field[MemoryBusParams]
 
 /** Wrapper for creating TL nodes from a bus connected to the back of each mem channel */
 class MemoryBus(params: MemoryBusParams)(implicit p: Parameters)
