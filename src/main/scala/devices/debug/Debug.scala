@@ -1075,7 +1075,7 @@ class TLDebugModuleInner(device: Device, getNComponents: () => Int, beatBytes: I
     assert ((hartSelFuncs.hartSelToHartId(selectedHartReg) < 1024.U),
       "HartSel to HartId Mapping is illegal for this Debug Implementation, because HartID must be < 1024 for it to work.");
     when ((selectedHartReg >> log2Ceil(flags.size)) === 0.U) {
-      flags(hartSelFuncs.hartSelToHartId(selectedHartReg.extract(log2Ceil(nComponents)-1, 0))).go := goReg
+      flags(hartSelFuncs.hartSelToHartId(selectedHartReg.extract(log2Ceil(flags.size)-1, 0))).go := goReg
     }
 
     for (component <- 0 until nComponents) {
